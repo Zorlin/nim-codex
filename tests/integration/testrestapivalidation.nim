@@ -11,8 +11,11 @@ import ../examples
 import ../codex/examples
 import ./codexconfig
 import ./codexprocess
+import ./utils
 
-from ./multinodes import Role, getTempDirName, jsonRpcProviderUrl, nextFreePort
+from ./multinodes import Role
+
+const HardhatPort {.intdefine.}: int = 8545
 
 # This suite allows to run fast the basic rest api validation.
 # It starts only one node for all the checks in order to speed up 
@@ -29,7 +32,9 @@ asyncchecksuite "Rest API validation":
   config.addCliOption("--nat", "none")
   config.addCliOption("--listen-addrs", "/ip4/127.0.0.1/tcp/0")
   config.addCliOption("--disc-port", $(waitFor nextFreePort(8081)))
-  config.addCliOption(StartUpCmd.persistence, "--eth-provider", jsonRpcProviderUrl)
+  config.addCliOption(
+    StartUpCmd.persistence, "--eth-provider", "http://127.0.0.1:" & $HardhatPort
+  )
   config.addCliOption(StartUpCmd.persistence, "--eth-account", $EthAddress.example)
 
   node =
