@@ -4,7 +4,6 @@ import ../contracts/deployment
 import ./marketplacesuite
 import ./twonodes
 import ./nodeconfigs
-from ../helpers import eventuallySafe
 
 marketplacesuite "Marketplace":
   let marketplaceConfig = NodeConfigs(
