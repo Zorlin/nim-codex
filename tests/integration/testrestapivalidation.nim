@@ -18,8 +18,10 @@ from ./multinodes import Role
 const HardhatPort {.intdefine.}: int = 8545
 const CodexApiPort {.intdefine.}: int = 8080
 const CodexDiscPort {.intdefine.}: int = 8090
-const DebugCodexNodes {.booldefine.}: bool = false
-const LogsDir {.strdefine.}: string = ""
+const TestId {.strdefine.}: string = "TestId"
+const CodexLogToFile {.booldefine.}: bool = false
+const CodexLogLevel {.strdefine.}: string = ""
+const CodexLogsDir {.strdefine.}: string = ""
 
 # This suite allows to run fast the basic rest api validation.
 # It starts only one node for all the checks in order to speed up 
@@ -27,12 +29,20 @@ const LogsDir {.strdefine.}: string = ""
 asyncchecksuite "Rest API validation":
   var node: CodexProcess
   var config = CodexConfigs.init(nodes = 1).configs[0]
-  let starttime = now().format("yyyy-MM-dd'_'HH:mm:ss")
+  let startTime = now().format("yyyy-MM-dd'_'HH:mm:ss")
 
-  when DebugCodexNodes:
+  var currentTestName = ""
+  template test(tname, tbody) =
+    currentTestName = tname
+    test tname:
+      tbody
+
+  when CodexLogToFile:
     config.addCliOption(
       "--log-file",
-      getLogFile(LogsDir, starttime, "Rest API validation", currentTestName, "Client"),
+      getLogFile(
+        CodexLogsDir, startTime, "Rest API validation", currentTestName, "Client"
+      ),
     )
   config.addCliOption("--api-port", $(waitFor nextFreePort(CodexApiPort)))
   config.addCliOption("--nat", "none")
@@ -40,6 +50,9 @@ asyncchecksuite "Rest API validation":
   config.addCliOption("--disc-port", $(waitFor nextFreePort(CodexDiscPort)))
   config.addCliOption(
     StartUpCmd.persistence, "--eth-provider", "http://127.0.0.1:" & $HardhatPort
+  )
+  config.addCliOption(
+    "--data-dir", getDataDir(TestId, currentTestName, startTime, $Role.Client)
   )
   config.addCliOption(StartUpCmd.persistence, "--eth-account", $EthAddress.example)
 
