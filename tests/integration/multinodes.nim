@@ -380,7 +380,7 @@ template multinodesuite*(name: string, body: untyped) =
         # Do not use websockets, but use http and polling to stop subscriptions
         # from being removed after 5 minutes
         ethProvider = JsonRpcProvider.new(
-          jsonRpcProviderUrl, pollingInterval = chronos.milliseconds(100)
+          jsonRpcProviderUrl, pollingInterval = chronos.milliseconds(1000)
         )
         # if hardhat was NOT started by the test, take a snapshot so it can be
         # reverted in the test teardown
