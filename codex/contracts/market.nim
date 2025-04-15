@@ -83,7 +83,11 @@ proc approveFunds(
   convertEthersError("Failed to approve funds"):
     let tokenAddress = await market.contract.token()
     let token = Erc20Token.new(tokenAddress, market.signer)
-    discard await token.increaseAllowance(market.contract.address(), amount).confirm(1)
+    let currentAllowance =
+      await token.allowance(await market.getSigner(), market.contract.address())
+    discard await token
+    .approve(market.contract.address(), currentAllowance + amount)
+    .confirm(1)
 
 method loadConfig*(
     market: OnChainMarket
